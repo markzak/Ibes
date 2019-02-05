@@ -4,18 +4,6 @@
 
 %macro getFundaWithIBESTicker(dsout=, fundaVars=, year1=2010, year2=2015);
 
-/* having an empty rsubmit-endrsubmit forces the connection to either pass or fail */
-rsubmit;endrsubmit;
-%let wrds = wrds.wharton.upenn.edu 4016;options comamid = TCP remote=WRDS;signon username=_prompt_;
-
-/* syslput pushes macro variables to the remote connection */
-%syslput dsout = &dsout;
-%syslput year1 = &year1;
-%syslput year2 = &year2;
-%syslput fundaVars = &fundaVars;
-
-rsubmit;
-
 /* Funda data */
 data getf_1 (keep = key gvkey fyear datadate sich &fundaVars);
 set comp.funda;
