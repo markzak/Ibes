@@ -63,3 +63,11 @@ quit;
 proc sort data=getf_4 out=&dsout nodupkey; by key;run;
 
 %mend;
+
+
+%macro runquit;
+; run; quit;
+%if &syserr. ne 0 %then %do;
+%abort cancel ;
+%end;
+%mend runquit;
