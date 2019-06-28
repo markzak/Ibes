@@ -2,6 +2,8 @@
 	This macro creates a dataset based on Funda and adds permno, cusip and ibes_ticker
 */
 
+/*****************************************************************************************************************/
+
 %macro IbesA(dsout=, AVars=, year1=2010, year2=2015);
 
 /* Funda data */
@@ -67,6 +69,7 @@ proc datasets library=work; delete getf_: ; quit;
 
 %mend;
 
+/*****************************************************************************************************************/
 
 %macro getFundaWithIBESTicker(dsout=, fundaVars=, year1=2010, year2=2015);
 
@@ -133,10 +136,11 @@ proc datasets library=work; delete getf_: ; quit;
 
 %mend;
 
-%macro IbesQ(dsout=, Qvars=, year1=, year2=);
+/*****************************************************************************************************************/
+%macro IbesQ(dsout=, Qvars=, Avars=, year1=, year2=);
 
 	/* get funda -- used for datadate_annual */
-	data getf_0A (keep = gvkey fyear datadate datadate_annual);
+	data getf_0A (keep = gvkey fyear datadate_annual Tic Conm Fic Sich &Avars);
 	set comp.funda;
 	if indfmt='INDL' and datafmt='STD' and popsrc='D' and consol='C' ;
 	if &year1 <= fyear <= &year2;
@@ -235,7 +239,14 @@ proc datasets library=work; delete getf_: ; quit;
 
 %mend;
 
+/*****************************************************************************************************************/
 
+%macro	cleanprefix(prefix= );
+	/*cleanup datasets with prefix */
+	proc datasets library=work; delete &prefix: ; quit;
+%mend;
+
+/*****************************************************************************************************************/
 
 %macro runquit;
 ; run; quit;
