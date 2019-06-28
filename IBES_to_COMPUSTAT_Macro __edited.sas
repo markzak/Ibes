@@ -2,10 +2,10 @@
 	This macro creates a dataset based on Funda and adds permno, cusip and ibes_ticker
 */
 
-%macro IbesA(dsout=, fundaVars=, year1=2010, year2=2015);
+%macro IbesA(dsout=, AVars=, year1=2010, year2=2015);
 
 /* Funda data */
-data getf_1 (keep = key gvkey fyear datadate sich &fundaVars);
+data getf_1 (keep = key gvkey fyear datadate sich &AVars);
 set comp.funda;
 if &year1 <= fyear <= &year2;
 if indfmt='INDL' and datafmt='STD' and popsrc='D' and consol='C' ;
