@@ -137,18 +137,22 @@ proc datasets library=work; delete getf_: ; quit;
 %mend;
 
 /*****************************************************************************************************************/
+/**************************************************************************************************************************************************/
+/*	Note: V2 only pulls companies that have CURCD='USD' and it left joins quarterly data to annual in getf_1 as opposed to the previous version */
+
 %macro IbesQ(dsout=, Qvars=, Avars=, year1=, year2=);
 
 	/* get funda -- used for datadate_annual */
 	data getf_0A (keep = gvkey fyear datadate_annual Tic Conm Fic Sich &Avars);
 	set comp.funda;
-	if indfmt='INDL' and datafmt='STD' and popsrc='D' and consol='C' ;
+	if indfmt='INDL' and datafmt='STD' and popsrc='D' and consol='C' and curcd='USD';
 	if &year1 <= fyear <= &year2;
 	rename datadate=datadate_annual;
 	run;
 	proc sort data=getf_0A nodupkey; by gvkey fyear; run;
 
 	/* FundQ data */
+	/* does not have CURCD */
 	data getf_0Q (keep = gvkey fyearq fyear fqtr datadate fyr ibq rdq &QVars);
 	set comp.fundq;
 	if &year1 <= fyearq <= &year2;
@@ -156,10 +160,10 @@ proc datasets library=work; delete getf_: ; quit;
 	rename fyearQ=fyear;
 	run;
 
-	/* bring in Datadate_annual */
+	/* bring in Quarterly to Annual Data */
 	proc sql; 	create table getf_1 as
-				select a.*, b.datadate_annual
-				from getf_0Q as a left join getf_0A as b
+				select a.gvkey, a.datadate_annual a.fyear, b.fqtr, b.fyr, b.datadate, a.tic, a.conm, a.*, b.rdq, b.ibq, %do_over(values=&QVars, between=comma, phrase=b.?) 
+				from getf_0A as a left join getf_0Q as b
 				on a.gvkey eq b.gvkey and a.fyear eq b.fyear
 				order by a.gvkey, a.fyear, a.fqtr
 				;
@@ -231,8 +235,13 @@ proc datasets library=work; delete getf_: ; quit;
 	proc sort 	data=getf_6; by gvkey fyear fqtr descending datadate_annual descending keep descending ibq descending rdq ; run;		
 	proc sort 	data=getf_6 out=getf_7 nodupkey; by gvkey fyear fqtr; run; 									
 
+	/* Rename */
+	data getf_8; set getf_7;
+			rename datadate_annual=Datadate datadate=Datadate_Q;	/* old = new name */
+			run;
+
 	/* Save final */
-	data &dsout; set getf_7; drop keep FYQ; run;
+	data &dsout; set getf_8; drop keep FYQ; run;
 
 	/*cleanup *//* delete all datasets with the prefix getf_ */
 	proc datasets library=work; delete getf_: ; quit;
