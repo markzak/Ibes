@@ -243,7 +243,7 @@ proc datasets library=work; delete getf_: ; quit;
 
 %macro	cleanprefix(prefix= );
 	/*cleanup datasets with prefix */
-	proc datasets library=work; delete &prefix: ; quit;
+	proc datasets library=work nolist; delete &prefix: ; quit;
 %mend;
 
 /*****************************************************************************************************************/
