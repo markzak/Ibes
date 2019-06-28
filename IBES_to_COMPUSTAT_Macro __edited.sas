@@ -7,6 +7,8 @@
 
 %macro IbesQ(dsout=, Qvars=, Avars=, year1=, year2=);
 
+
+
 	/* get funda -- used for datadate_annual */
 	data getf_0A (keep = gvkey fyear datadate_annual Tic Conm Fic Sich &Avars);
 	set comp.funda;
@@ -105,13 +107,21 @@
 			rename datadate_annual=Datadate datadate=Datadate_Q;	/* old = new name */
 			run;
 
+	proc sql; 	create table getf_9 as
+				select gvkey, Datadate, fyear, fqtr, fyr, datadate_q, tic, conm, fic, permno, Ncusip, Ibes_Ticker, *
+				from getf_8
+				order by gvkey, fyear, fqtr
+				;
+				quit;
+
 	/* Save final */
-	data &dsout; set getf_8; drop keep FYQ; run;
+	data &dsout; set getf_9; drop keep FYQ; run;
 
 	/*cleanup *//* delete all datasets with the prefix getf_ */
 	proc datasets library=work; delete getf_: ; quit;
 
 %mend;
+
 
 /*****************************************************************************************************************/
 
