@@ -27,10 +27,10 @@
 
 	/* bring in Quarterly to Annual Data */
 	proc sql; 	create table getf_1 as
-				select a.gvkey, a.datadate_annual a.fyear, b.fqtr, b.fyr, b.datadate, a.tic, a.conm, a.*, b.rdq, b.ibq, %do_over(values=&QVars, between=comma, phrase=b.?) 
+				select a.gvkey, a.datadate_annual, a.fyear, b.fqtr, b.fyr, b.datadate, a.tic, a.conm, a.*, b.rdq, b.ibq, %do_over(values=&QVars, between=comma, phrase=b.?)
 				from getf_0A as a left join getf_0Q as b
 				on a.gvkey eq b.gvkey and a.fyear eq b.fyear
-				order by a.gvkey, a.fyear, a.fqtr
+				order by a.gvkey, a.fyear, b.fqtr
 				;
 				quit;
 
@@ -102,10 +102,7 @@
 
 	/* Rename */
 	data getf_8; set getf_7;
-			rename datadate_annual=Datadate_1 datadate=Datadate_Q;	/* old = new name */
-			run;
-	data getf_8; set getf_8;
-			rename Datadate_1=Datadate;
+			rename datadate_annual=Datadate datadate=Datadate_Q;	/* old = new name */
 			run;
 
 	/* Save final */
