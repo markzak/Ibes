@@ -135,7 +135,7 @@
 
 /*****************************************************************************************************************/
 
-%macro IbesA(dsout=, AVars=, year1=2010, year2=2015);
+%macro IbesA(dsout=, AVars=, year1=, year2=);
 
 /* Funda data */
 data getf_1 (keep = key gvkey fyear datadate sich &AVars);
